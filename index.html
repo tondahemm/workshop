@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pivovary pro dvoudenní workshop týmu</title>
+  <style>
+    :root {
+      --bg: #f7f3ec;
+      --card: #ffffff;
+      --ink: #241c15;
+      --muted: #6f6258;
+      --accent: #b66a16;
+      --accent-dark: #7a4311;
+      --accent-soft: #fff0dc;
+      --line: #e4d8ca;
+      --good: #1f7a4d;
+      --warn: #9a6b00;
+      --bad: #9b2c2c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    header {
+      padding: 48px 24px 28px;
+      background: linear-gradient(135deg, #2d2117, #7a4311);
+      color: white;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      font-size: clamp(30px, 4vw, 52px);
+      letter-spacing: -0.04em;
+      line-height: 1.05;
+    }
+
+    .subtitle {
+      max-width: 860px;
+      margin: 0;
+      color: rgba(255,255,255,0.82);
+      font-size: 18px;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.13);
+      color: white;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    main { padding: 28px 24px 56px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(36, 28, 21, 0.06);
+    }
+
+    .card h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .controls {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(36, 28, 21, 0.06);
+      margin-bottom: 18px;
+    }
+
+    .controls-top {
+      display: grid;
+      grid-template-columns: minmax(240px, 1fr) repeat(3, minmax(160px, 220px));
+      gap: 12px;
+      align-items: end;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6f4a28;
+      margin-bottom: 6px;
+    }
+
+    input, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 11px 12px;
+      font: inherit;
+      background: #fffaf3;
+      color: var(--ink);
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(182, 106, 22, 0.16);
+    }
+
+    .filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 14px;
+    }
+
+    .filter-button, .reset-button {
+      border: 1px solid var(--line);
+      background: #fffaf3;
+      color: #4b3320;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      transition: 0.16s ease;
+    }
+
+    .filter-button:hover, .reset-button:hover {
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .filter-button.active {
+      background: var(--accent-dark);
+      color: white;
+      border-color: var(--accent-dark);
+    }
+
+    .reset-button {
+      margin-left: auto;
+      background: white;
+      font-weight: 700;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin: 20px 0 14px;
+    }
+
+    .toolbar h2 {
+      margin: 0;
+      font-size: 24px;
+      letter-spacing: -0.02em;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    #resultCount {
+      font-weight: 800;
+      color: var(--accent-dark);
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: 0 12px 30px rgba(36, 28, 21, 0.07);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1220px;
+    }
+
+    th, td {
+      padding: 14px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #fff9f0;
+      color: #4b3320;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+
+    th.sortable::after {
+      content: " ↕";
+      color: #a18873;
+      font-weight: 400;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    tbody tr:hover td { background: #fffaf3; }
+
+    .name {
+      font-weight: 800;
+      font-size: 15px;
+      color: #1f1710;
+    }
+
+    .stars { white-space: nowrap; color: #b96b16; }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: #7a4311;
+      font-size: 12px;
+      font-weight: 700;
+      margin: 2px 4px 2px 0;
+    }
+
+    .yes { color: var(--good); font-weight: 700; }
+    .maybe { color: var(--warn); font-weight: 700; }
+    .note {
+      background: #fff7eb;
+      border-left: 4px solid var(--accent);
+      padding: 10px 12px;
+      border-radius: 10px;
+      color: #4c3827;
+      min-width: 220px;
+    }
+
+    .rank {
+      font-weight: 900;
+      color: var(--accent);
+      font-size: 16px;
+    }
+
+    .hidden { display: none; }
+
+    .empty-state {
+      display: none;
+      background: white;
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+      color: var(--muted);
+      margin-top: 14px;
+    }
+
+    footer {
+      margin-top: 22px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 1000px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .controls-top { grid-template-columns: 1fr 1fr; }
+      header { padding-top: 34px; }
+    }
+
+    @media (max-width: 640px) {
+      .controls-top { grid-template-columns: 1fr; }
+      .reset-button { margin-left: 0; }
+    }
+
+    @media print {
+      body { background: white; }
+      header { background: white; color: black; padding: 20px 0; }
+      .subtitle, .pill { color: black; background: transparent; padding-left: 0; }
+      main { padding: 0; }
+      .controls { display: none; }
+      .card, .table-wrap { box-shadow: none; }
+      th { position: static; }
+      .table-wrap { overflow: visible; }
+      table { min-width: 0; font-size: 11px; }
+      th, td { padding: 8px; font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Pivovary pro dvoudenní workshop týmu</h1>
+      <p class="subtitle">Interaktivní přehled míst do cca 130 km od Prahy pro 8členný tým: malý/craft pivovar, ubytování, workshop použitelnost a konkrétní afterwork aktivity.</p>
+      <div class="meta">
+        <span class="pill">🍺 Zichovec-like / craft vibe</span>
+        <span class="pill">🏡 ubytování poblíž nebo v areálu</span>
+        <span class="pill">🧭 do cca 130 km od Prahy</span>
+        <span class="pill">👥 tým 8 lidí / 2 dny</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+      <section class="summary-grid">
+        <div class="card">
+          <h2>🥇 Nejjednodušší logistika</h2>
+          <p><strong>Dvůr Všerad</strong> — pivovar, ubytování a aktivity v jednom areálu. Nejméně přesunů a nejplynulejší flow.</p>
+        </div>
+        <div class="card">
+          <h2>🌲 Nejlepší craft + příroda</h2>
+          <p><strong>Pivovar Kytín</strong> — dobrý pivní vibe, Brdy po ruce a hodně variant aktivit i ubytování.</p>
+        </div>
+        <div class="card">
+          <h2>🎭 Nejlepší atmosféra</h2>
+          <p><strong>Pivovar Lobeč</strong> — nejvíc zážitková volba, krásné Kokořínsko a silný komunitní/kulturní charakter.</p>
+        </div>
+      </section>
+
+      <section class="controls" aria-label="Filtry tabulky">
+        <div class="controls-top">
+          <div>
+            <label for="searchInput">Vyhledávání</label>
+            <input id="searchInput" type="search" placeholder="Zadej např. Brdy, sauna, ubytování 0 m, řeka…" />
+          </div>
+          <div>
+            <label for="vibeFilter">Vibe</label>
+            <select id="vibeFilter">
+              <option value="">Všechny vibe</option>
+              <option value="5">★★★★★ top vibe / beer geek</option>
+              <option value="4">★★★★☆ silný kandidát</option>
+              <option value="3">★★★☆☆ dobrá doplňková volba</option>
+              <option value="2">★★☆☆☆ spíš záloha</option>
+            </select>
+          </div>
+          <div>
+            <label for="distanceFilter">Vzdálenost od Prahy</label>
+            <select id="distanceFilter">
+              <option value="">Všechny vzdálenosti</option>
+              <option value="30">do 30 km</option>
+              <option value="50">do 50 km</option>
+              <option value="80">do 80 km</option>
+              <option value="130">do 130 km</option>
+            </select>
+          </div>
+          <div>
+            <label for="lodgingFilter">Ubytování</label>
+            <select id="lodgingFilter">
+              <option value="">Všechna ubytování</option>
+              <option value="onsite">ubytování 0 m / v areálu</option>
+              <option value="nearby">ubytování do 5 km</option>
+              <option value="external">externí ubytování</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-row" aria-label="Rychlé filtry">
+          <button class="filter-button" data-tag="craft" type="button">🍺 craft</button>
+          <button class="filter-button" data-tag="all-in-one" type="button">🏡 all-in-one</button>
+          <button class="filter-button" data-tag="Brdy" type="button">🌲 Brdy</button>
+          <button class="filter-button" data-tag="Kokořínsko" type="button">🪨 Kokořínsko</button>
+          <button class="filter-button" data-tag="řeka" type="button">🚣 řeka</button>
+          <button class="filter-button" data-tag="nejméně logistiky" type="button">⚡ nejméně logistiky</button>
+          <button class="filter-button" data-tag="beer geek" type="button">🤓 beer geek</button>
+          <button class="reset-button" id="resetFilters" type="button">Reset filtrů</button>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <h2>Kompletní rozhodovací tabulka</h2>
+        <span class="hint"><span id="resultCount">12</span> z 12 míst zobrazeno. Kliknutím na hlavičku lze řadit podle pořadí, názvu, vzdálenosti nebo vibe.</span>
+      </div>
+
+      <div class="table-wrap">
+        <table id="breweryTable">
+          <thead>
+            <tr>
+              <th class="sortable" data-sort="rank">#</th>
+              <th class="sortable" data-sort="name">Pivovar</th>
+              <th class="sortable" data-sort="distance">Lokalita</th>
+              <th class="sortable" data-sort="vibe">Vibe</th>
+              <th>Ubytování / vzdálenost</th>
+              <th>Workshop</th>
+              <th>Afterwork aktivity</th>
+              <th>Moje poznámka / doporučení</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr data-rank="1" data-name="Pivovar Kytín" data-distance="35" data-vibe="4" data-lodging="onsite nearby external" data-tags="craft Brdy outdoor sauna gril oheň ubytování 0 m">
+              <td class="rank">1</td>
+              <td><div class="name">Pivovar Kytín</div><span class="tag">craft</span><span class="tag">Brdy</span><span class="tag">outdoor</span></td>
+              <td>Kytín / Brdy<br>cca 35 km od Prahy</td>
+              <td><span class="stars">★★★★☆</span><br>Zichovec-like, ale komornější</td>
+              <td>Ubytování Kytín — 0 m<br>Penzion U Tří statkářů — cca 8 km<br>Pension Chalupa — cca 8,4 km<br>Hotel V Pivovaře — cca 13,6 km</td>
+              <td><span class="yes">Ano</span><br>Spíš přes ubytování / penzion než přímo pivovar.</td>
+              <td>Degustace v pivovaru, gravel/MTB v Brdech, pěší výlet, večerní oheň/gril, sauna podle zvoleného ubytování.</td>
+              <td><div class="note"><strong>Nejlepší all-round.</strong> Vybral bych, pokud chcete dobré pivo, přírodu a neformální workshop bez hotelové sterility. Doporučuji ověřit kapacitu Ubytování Kytín včas.</div></td>
+            </tr>
+
+            <tr data-rank="2" data-name="Pivovar Lobeč" data-distance="70" data-vibe="5" data-lodging="onsite external" data-tags="zážitek Kokořínsko historický pivovar kultura koncert skály ubytování 0 m">
+              <td class="rank">2</td>
+              <td><div class="name">Pivovar Lobeč</div><span class="tag">zážitek</span><span class="tag">Kokořínsko</span><span class="tag">historický pivovar</span></td>
+              <td>Lobeč / Kokořínsko<br>cca 70 km od Prahy</td>
+              <td><span class="stars">★★★★★</span><br>nejlepší atmosféra</td>
+              <td>Ubytování v pivovaru — 0 m<br>Hotel Kokořín — cca 6–8 km<br>Chalupy Kokořínsko — cca 5–15 km</td>
+              <td><span class="yes">Ano</span><br>Dobré pro komorní workshop, nutné sladit kapacitu.</td>
+              <td>Řízená degustace, pivovarská exkurze, kulturní akce/koncert, výlet do Kokořínských skal, večer na dvoře.</td>
+              <td><div class="note"><strong>Nejlepší vibe.</strong> Skvělé, pokud má tým rád autenticitu, architekturu, příběh místa a trochu „retreat“ atmosféru. Méně vhodné, pokud chcete maximálně komfortní hotelový servis.</div></td>
+            </tr>
+
+            <tr data-rank="3" data-name="Hostinec a pivovar Dvůr Všerad" data-distance="45" data-vibe="4" data-lodging="onsite external" data-tags="all-in-one statek nejméně logistiky Brdy minigolf oheň gril ubytování 0 m">
+              <td class="rank">3</td>
+              <td><div class="name">Hostinec a pivovar Dvůr Všerad</div><span class="tag">all-in-one</span><span class="tag">statek</span><span class="tag">nejméně logistiky</span></td>
+              <td>Všeradice / Brdy<br>cca 45 km od Prahy</td>
+              <td><span class="stars">★★★★☆</span><br>méně craft geek, hodně praktické</td>
+              <td>Ubytování Dvůr Všerad — 0 m<br>Hotel Laguna Slapy — cca 15 km</td>
+              <td><span class="yes">Ano</span><br>Nejjednodušší varianta pro uzavřenou týmovou akci.</td>
+              <td>Vlastní pivovar, minigolf, týmové hry na statku, posezení na dvoře, oheň/gril podle domluvy.</td>
+              <td><div class="note"><strong>Nejbezpečnější organizační volba.</strong> Pokud nechcete řešit taxíky, přesuny a rozpad programu po večeři, tohle je nejsilnější kandidát.</div></td>
+            </tr>
+
+            <tr data-rank="4" data-name="Pivovar Matuška" data-distance="60" data-vibe="5" data-lodging="nearby external" data-tags="beer geek top craft Křivoklátsko hrad hiking cyklo">
+              <td class="rank">4</td>
+              <td><div class="name">Pivovar Matuška</div><span class="tag">beer geek</span><span class="tag">top craft</span><span class="tag">Křivoklátsko</span></td>
+              <td>Broumy / Křivoklátsko<br>cca 60 km od Prahy</td>
+              <td><span class="stars">★★★★★</span><br>nejlepší pivo pro nadšence</td>
+              <td>Penziony Broumy — cca 1–3 km<br>Hotel Křivoklát — cca 10 km</td>
+              <td><span class="yes">Ano</span><br>Ale spíš v externím ubytování; pivovar jako večerní cíl.</td>
+              <td>Craft degustace, hike v Křivoklátsku, výlet na hrad Křivoklát, cyklo trasy, lesní aktivity.</td>
+              <td><div class="note"><strong>Nejlepší pro beer nerds.</strong> Pivně možná nejsilnější volba, ale logisticky slabší než Kytín/Lobeč/Všerad. Doporučuji jen pokud je pivo hlavní priorita.</div></td>
+            </tr>
+
+            <tr data-rank="5" data-name="Únětický pivovar" data-distance="15" data-vibe="3" data-lodging="nearby external" data-tags="blízko Prahy easy údolí piknik ubytování do 5 km">
+              <td class="rank">5</td>
+              <td><div class="name">Únětický pivovar</div><span class="tag">blízko Prahy</span><span class="tag">easy</span></td>
+              <td>Únětice<br>cca 15 km od Prahy</td>
+              <td><span class="stars">★★★☆☆</span><br>dobré, ale méně experimentální</td>
+              <td>Airbnb / apartmány Roztoky — cca 2–5 km<br>Hotel Academic — cca 3 km</td>
+              <td><span class="yes">Ano</span><br>Vhodné hlavně přes ubytování v okolí.</td>
+              <td>Zahrádka pivovaru, procházka Únětickým údolím, piknik, jednoduché týmové hry, rychlý návrat do Prahy.</td>
+              <td><div class="note"><strong>Nejlepší fallback.</strong> Když potřebujete minimální cestování a jednoduchou dostupnost, funguje skvěle. Není to ale tak „retreat“ jako Kokořínsko nebo Brdy.</div></td>
+            </tr>
+
+            <tr data-rank="6" data-name="Pivovar Antoš" data-distance="30" data-vibe="4" data-lodging="nearby external" data-tags="Slaný větší pivovar město bowling bar degustace">
+              <td class="rank">6</td>
+              <td><div class="name">Pivovar Antoš</div><span class="tag">Slaný</span><span class="tag">větší pivovar</span></td>
+              <td>Slaný<br>cca 30 km od Prahy</td>
+              <td><span class="stars">★★★★☆</span><br>craft, ale městštější</td>
+              <td>Hotely a penziony Slaný — cca 1–3 km</td>
+              <td><span class="yes">Ano</span><br>Snadné najít zázemí ve městě.</td>
+              <td>Degustace piv, večer ve městě, bowling/bar, krátká procházka historickým centrem.</td>
+              <td><div class="note"><strong>Městská varianta.</strong> Dobré, pokud chcete méně přírody a více jednoduchou infrastrukturu. Méně unikátní než Lobeč nebo Kytín.</div></td>
+            </tr>
+
+            <tr data-rank="7" data-name="Pivotel MMX" data-distance="25" data-vibe="4" data-lodging="nearby external" data-tags="moderní Berounka řeka raft kajak cyklostezka bar ubytování do 5 km">
+              <td class="rank">7</td>
+              <td><div class="name">Pivotel MMX</div><span class="tag">moderní</span><span class="tag">Berounka</span></td>
+              <td>Lety u Dobřichovic<br>cca 25 km od Prahy</td>
+              <td><span class="stars">★★★★☆</span><br>moderní, čistý design vibe</td>
+              <td>Hotely / penziony Dobřichovice — cca 2–5 km</td>
+              <td><span class="yes">Ano</span><br>Dobré přes hotely v okolí.</td>
+              <td>Moderní pivnice, Berounka raft/kajak, cyklostezka, večerní bar, procházka kolem řeky.</td>
+              <td><div class="note"><strong>Nejlepší „fun“ u řeky.</strong> Dobré pro tým, který chce po workshopu pohyb a nenáročný společný program. Méně romantické než Lobeč.</div></td>
+            </tr>
+
+            <tr data-rank="8" data-name="Pivovar Hostomice" data-distance="50" data-vibe="3" data-lodging="external" data-tags="Brdy lokální hiking les táborák outdoor">
+              <td class="rank">8</td>
+              <td><div class="name">Pivovar Hostomice</div><span class="tag">Brdy</span><span class="tag">lokální</span></td>
+              <td>Hostomice<br>cca 50 km od Prahy</td>
+              <td><span class="stars">★★★☆☆</span><br>lokální, méně destination</td>
+              <td>Penziony v Brdech — cca 5–15 km</td>
+              <td><span class="yes">Ano</span><br>Spíš přes penzion/chatu v okolí.</td>
+              <td>Lokální pivo, pěší výlety v Brdech, lesní aktivity, táborák, houbaření/sezónní outdoor.</td>
+              <td><div class="note"><strong>Dobrý doplněk k Brdům.</strong> Zvažoval bych, pokud najdete skvělé ubytování v okolí. Samotný pivovar bych nebral jako hlavní důvod cesty.</div></td>
+            </tr>
+
+            <tr data-rank="9" data-name="Pivovar Záhora" data-distance="80" data-vibe="3" data-lodging="external" data-tags="malý klid Polabí cyklo low-key degustace">
+              <td class="rank">9</td>
+              <td><div class="name">Pivovar Záhora</div><span class="tag">malý</span><span class="tag">klid</span><span class="tag">Polabí</span></td>
+              <td>Kněžičky / Běrunice<br>cca 80 km od Prahy</td>
+              <td><span class="stars">★★★☆☆</span><br>malý autentický spot</td>
+              <td>Lokální penziony — cca 5–15 km</td>
+              <td><span class="maybe">Spíš ano</span><br>Nutné ověřit konkrétní ubytování a místnost.</td>
+              <td>Klidná degustace, cyklo v rovinách Polabí, low-key týmové aktivity, večer bez velkého programu.</td>
+              <td><div class="note"><strong>Pro klidný tým.</strong> Nečekal bych wow efekt jako u Lobče, ale může fungovat, pokud chcete ticho, menší místo a neformální atmosféru.</div></td>
+            </tr>
+
+            <tr data-rank="10" data-name="Černokostelecký pivovar" data-distance="40" data-vibe="4" data-lodging="nearby external" data-tags="muzeum program historie exkurze degustace eventy ubytování do 5 km">
+              <td class="rank">10</td>
+              <td><div class="name">Černokostelecký pivovar</div><span class="tag">muzeum</span><span class="tag">program</span><span class="tag">historie</span></td>
+              <td>Kostelec nad Černými lesy<br>cca 40 km od Prahy</td>
+              <td><span class="stars">★★★★☆</span><br>silná atmosféra, méně craft modern</td>
+              <td>Penziony Kostelec — cca 1–5 km</td>
+              <td><span class="yes">Ano</span><br>Dobré zázemí v okolí.</td>
+              <td>Exkurze pivovar + muzeum, pivní historie, večeře, eventy, degustace.</td>
+              <td><div class="note"><strong>Nejlepší program navíc.</strong> Fajn, pokud chcete pivovar jako zážitkovou exkurzi, ne nutně moderní craft scénu.</div></td>
+            </tr>
+
+            <tr data-rank="11" data-name="Pivovar Řevnice" data-distance="30" data-vibe="3" data-lodging="nearby external" data-tags="Berounka řeka kanoe raft cyklostezka ubytování do 5 km">
+              <td class="rank">11</td>
+              <td><div class="name">Pivovar Řevnice</div><span class="tag">Berounka</span><span class="tag">řeka</span></td>
+              <td>Řevnice<br>cca 30 km od Prahy</td>
+              <td><span class="stars">★★★☆☆</span><br>příjemné, méně výjimečné</td>
+              <td>Ubytování Řevnice — cca 1–5 km</td>
+              <td><span class="yes">Ano</span><br>Vhodné při dobrém výběru penzionu.</td>
+              <td>Pivovar, Berounka kanoe/raft, cyklostezka, večer u řeky, výlet do okolí.</td>
+              <td><div class="note"><strong>Říční chill varianta.</strong> Dobré pro tým, který chce lehký sport a snadnou dostupnost vlakem/autem. Nečekal bych velký craft wow efekt.</div></td>
+            </tr>
+
+            <tr data-rank="12" data-name="Pivovar Libertas" data-distance="20" data-vibe="2" data-lodging="nearby external" data-tags="blízko doplněk Úvaly ochutnávka krátký výlet ubytování do 5 km">
+              <td class="rank">12</td>
+              <td><div class="name">Pivovar Libertas</div><span class="tag">blízko</span><span class="tag">doplněk</span></td>
+              <td>Úvaly<br>cca 20 km od Prahy</td>
+              <td><span class="stars">★★☆☆☆</span><br>spíš doplněk než destination</td>
+              <td>Ubytování Úvaly — cca 1–5 km</td>
+              <td><span class="maybe">Nejisté</span><br>Nutné ověřit vhodné zázemí.</td>
+              <td>Ochutnávka, krátký výlet, nenáročný večer, rychlý přesun z/do Prahy.</td>
+              <td><div class="note"><strong>Spíš záložní varianta.</strong> Zařadil bych ji jen pokud rozhoduje vzdálenost od Prahy nebo už máte v okolí vybrané ubytování.</div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state" id="emptyState">
+        Nic neodpovídá zvoleným filtrům. Zkus resetovat filtry nebo zadat obecnější hledání.
+      </div>
+
+      <footer>
+        <p><strong>Poznámka:</strong> vzdálenosti a možnosti ubytování ber jako pracovní shortlist pro poptávku. Před rezervací doporučuji ověřit aktuální kapacitu, otevírací dobu pivovaru, možnost řízené degustace a dostupnost workshopové místnosti.</p>
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    const table = document.getElementById('breweryTable');
+    const rows = Array.from(table.querySelectorAll('tbody tr'));
+    const searchInput = document.getElementById('searchInput');
+    const vibeFilter = document.getElementById('vibeFilter');
+    const distanceFilter = document.getElementById('distanceFilter');
+    const lodgingFilter = document.getElementById('lodgingFilter');
+    const resultCount = document.getElementById('resultCount');
+    const emptyState = document.getElementById('emptyState');
+    const resetButton = document.getElementById('resetFilters');
+    const quickButtons = Array.from(document.querySelectorAll('.filter-button'));
+
+    let activeTags = new Set();
+    let sortState = { key: 'rank', direction: 'asc' };
+
+    function normalize(value) {
+      return String(value || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+    }
+
+    function rowText(row) {
+      return normalize(row.innerText + ' ' + row.dataset.tags + ' ' + row.dataset.name);
+    }
+
+    function matchesSearch(row) {
+      const query = normalize(searchInput.value.trim());
+      if (!query) return true;
+      return query.split(/\s+/).every(part => rowText(row).includes(part));
+    }
+
+    function matchesVibe(row) {
+      if (!vibeFilter.value) return true;
+      return Number(row.dataset.vibe) === Number(vibeFilter.value);
+    }
+
+    function matchesDistance(row) {
+      if (!distanceFilter.value) return true;
+      return Number(row.dataset.distance) <= Number(distanceFilter.value);
+    }
+
+    function matchesLodging(row) {
+      if (!lodgingFilter.value) return true;
+      return normalize(row.dataset.lodging).includes(normalize(lodgingFilter.value));
+    }
+
+    function matchesTags(row) {
+      if (activeTags.size === 0) return true;
+      const tags = normalize(row.dataset.tags + ' ' + row.innerText);
+      return Array.from(activeTags).every(tag => tags.includes(normalize(tag)));
+    }
+
+    function applyFilters() {
+      let visibleCount = 0;
+
+      rows.forEach(row => {
+        const visible = matchesSearch(row) && matchesVibe(row) && matchesDistance(row) && matchesLodging(row) && matchesTags(row);
+        row.classList.toggle('hidden', !visible);
+        if (visible) visibleCount += 1;
+      });
+
+      resultCount.textContent = visibleCount;
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    function sortRows(key) {
+      if (sortState.key === key) {
+        sortState.direction = sortState.direction === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortState = { key, direction: 'asc' };
+      }
+
+      const direction = sortState.direction === 'asc' ? 1 : -1;
+      const tbody = table.querySelector('tbody');
+
+      rows.sort((a, b) => {
+        let av = a.dataset[key] || '';
+        let bv = b.dataset[key] || '';
+
+        if (['rank', 'distance', 'vibe'].includes(key)) {
+          av = Number(av);
+          bv = Number(bv);
+          return (av - bv) * direction;
+        }
+
+        return normalize(av).localeCompare(normalize(bv), 'cs') * direction;
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+      applyFilters();
+    }
+
+    [searchInput, vibeFilter, distanceFilter, lodgingFilter].forEach(control => {
+      control.addEventListener('input', applyFilters);
+      control.addEventListener('change', applyFilters);
+    });
+
+    quickButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const tag = button.dataset.tag;
+        if (activeTags.has(tag)) {
+          activeTags.delete(tag);
+          button.classList.remove('active');
+        } else {
+          activeTags.add(tag);
+          button.classList.add('active');
+        }
+        applyFilters();
+      });
+    });
+
+    resetButton.addEventListener('click', () => {
+      searchInput.value = '';
+      vibeFilter.value = '';
+      distanceFilter.value = '';
+      lodgingFilter.value = '';
+      activeTags.clear();
+      quickButtons.forEach(button => button.classList.remove('active'));
+      sortState = { key: 'rank', direction: 'asc' };
+      sortRows('rank');
+    });
+
+    table.querySelectorAll('th.sortable').forEach(header => {
+      header.addEventListener('click', () => sortRows(header.dataset.sort));
+    });
+
+    applyFilters();
+  </script>
+</body>
+</html>
